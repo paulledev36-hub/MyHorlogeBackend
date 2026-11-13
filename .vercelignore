@@ -1,0 +1,7 @@
+Dockerfile
+.dockerignore
+server.test.js
+README.md
+*.log
+.env
+.env.*

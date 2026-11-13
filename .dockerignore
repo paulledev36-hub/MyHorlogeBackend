@@ -1,0 +1,11 @@
+node_modules
+.git
+.vercel
+api
+vercel.json
+.vercelignore
+*.log
+.env
+.env.*
+server.test.js
+README.md

@@ -1,0 +1,19 @@
+{
+  "name": "myhorloge-byok-server",
+  "version": "1.0.0",
+  "description": "Secure BYOK backend vault and Gemini proxy for MyHorloge (Cloud Run & Cloud Functions Gen2)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test server.test.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.1"
+  },
+  "optionalDependencies": {
+    "@google-cloud/secret-manager": "^5.9.0"
+  }
+}
