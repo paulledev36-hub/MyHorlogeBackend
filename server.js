@@ -5,7 +5,7 @@ const crypto = require('node:crypto');
 
 const GOOGLE_AI_STUDIO_ORIGIN = 'https://generativelanguage.googleapis.com';
 const MAX_JSON_BODY_BYTES = 1024 * 1024; // 1 MB
-const API_KEY_PATTERN = /^(?:AIza[0-9A-Za-z_-]{20,}|AQ\.[0-9A-Za-z_.-]{20,})$/;
+const API_KEY_PATTERN = /^[A-Za-z0-9._-]{20,512}$/;
 const MODEL_NAME_PATTERN = /^gemini-[a-z0-9._-]{2,64}$/i;
 const MODERN_PREFERRED_MODELS = [
   'gemini-3.8-flash',
