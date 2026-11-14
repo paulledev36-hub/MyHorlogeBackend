@@ -305,6 +305,35 @@ function sendJson(res, statusCode, payload) {
   res.end(body);
 }
 
+function resolveRequestPathname(req) {
+  const rawUrl = String((req && req.url) || '/');
+  const parsedUrl = new URL(rawUrl, 'http://localhost');
+  const queryRoute = parsedUrl.searchParams.get('__route');
+  const headers = (req && req.headers) || {};
+  const originalUrlHeader =
+    headers['x-vercel-original-url'] ||
+    headers['x-forwarded-uri'] ||
+    headers['x-original-url'] ||
+    (req && req.originalUrl);
+
+  let candidatePath = parsedUrl.pathname;
+  if (queryRoute && queryRoute.trim()) {
+    candidatePath = queryRoute.split('?')[0];
+  } else if (
+    (candidatePath === '/api/index' || candidatePath === '/index') &&
+    typeof originalUrlHeader === 'string' &&
+    originalUrlHeader.trim()
+  ) {
+    candidatePath = new URL(originalUrlHeader, 'http://localhost').pathname;
+  }
+
+  let pathname = String(candidatePath || '/').replace(/\/+$/, '') || '/';
+  if (pathname === '/api/healthz' || pathname.startsWith('/api/byok/')) {
+    pathname = pathname.slice(4);
+  }
+  return pathname;
+}
+
 /**
  * Creates an HTTP request handler implementing the MyHorloge BYOK server contract:
  * - POST   /byok/key
@@ -376,11 +405,7 @@ function createByokHandler({
   }
 
   return async function handleByokRequest(req, res) {
-    const parsedUrl = new URL(req.url || '/', 'http://localhost');
-    let pathname = parsedUrl.pathname.replace(/\/+$/, '') || '/';
-    if (pathname === '/api/healthz' || pathname.startsWith('/api/byok/')) {
-      pathname = pathname.slice(4);
-    }
+    const pathname = resolveRequestPathname(req);
     const method = (req.method || 'GET').toUpperCase();
 
     if (method === 'GET' && pathname === '/healthz') {
@@ -566,8 +591,7 @@ function createProductionHandler({ env = process.env, adminModule, firestoreModu
 let cachedEntrypointHandler = null;
 
 async function vercelOrServerlessEntrypoint(req, res) {
-  const rawUrl = String((req && req.url) || '/');
-  const pathname = rawUrl.split('?')[0].replace(/\/+$/, '') || '/';
+  const pathname = resolveRequestPathname(req);
   const method = String((req && req.method) || 'GET').toUpperCase();
 
   try {
@@ -620,6 +644,7 @@ module.exports = Object.assign(vercelOrServerlessEntrypoint, {
   normalizeMasterKey,
   parseServiceAccountJson,
   resolveFirestoreDatabaseId,
+  resolveRequestPathname,
   redactSecrets,
   maskApiKey
 });
