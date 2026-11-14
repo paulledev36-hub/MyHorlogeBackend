@@ -1,6 +1,6 @@
 'use strict';
 
-const { createProductionHandler, redactSecrets } = require('../server');
+const { createProductionHandler, redactSecrets, resolveRequestPathname } = require('../server');
 
 let cachedHandler = null;
 
@@ -19,8 +19,7 @@ function sendJson(res, statusCode, payload) {
 }
 
 module.exports = async function vercelByokHandler(req, res) {
-  const rawUrl = String((req && req.url) || '/');
-  const pathname = rawUrl.split('?')[0].replace(/\/+$/, '') || '/';
+  const pathname = resolveRequestPathname(req);
   const method = String((req && req.method) || 'GET').toUpperCase();
 
   try {
